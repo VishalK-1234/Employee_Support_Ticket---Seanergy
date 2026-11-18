@@ -130,14 +130,7 @@ export default function Navbar({ user }: NavbarProps) {
                   <LogOut className="w-4 h-4" />
                 </button>
               </div>
-            ) : (
-              <Link
-                href="/login"
-                className="px-4 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-sm font-semibold shadow-md shadow-blue-500/20 hover:shadow-blue-500/35 hover:scale-[1.02] active:scale-95 transition-all duration-200"
-              >
-                Sign In
-              </Link>
-            )}
+            ) : null}
           </div>
         </div>
       </div>
