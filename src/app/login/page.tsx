@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Lock, User, LifeBuoy, ArrowRight, ShieldCheck, Sparkles } from "lucide-react";
+import { Lock, User, Headset, ArrowRight, ShieldCheck, Sparkles } from "lucide-react";
 
 export default function LoginPage() {
   const [username, setUsername] = useState("");
@@ -54,7 +54,7 @@ export default function LoginPage() {
 
         <div className="text-center mb-8 relative">
           <div className="inline-flex w-14 h-14 rounded-2xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-violet-600 items-center justify-center text-white shadow-lg shadow-indigo-500/25 mb-4 transform hover:scale-105 transition-transform duration-300">
-            <LifeBuoy className="w-7 h-7" />
+            <Headset className="w-7 h-7" aria-hidden="true" />
           </div>
           <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">
             Welcome Back

@@ -18,7 +18,7 @@ export default async function RootLayout({
   const user = await getCurrentUser();
 
   return (
-    <html lang="en" className="h-full antialiased selection:bg-blue-500 selection:text-white">
+    <html lang="en" className="h-full antialiased selection:bg-teal-400 selection:text-slate-950">
       <body className="min-h-full flex flex-col font-sans text-slate-800">
         {/* Ambient floating mesh gradients for glassmorphism refraction */}
         <div className="ambient-mesh">

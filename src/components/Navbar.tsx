@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { LifeBuoy, PlusCircle, LogOut, User, ShieldCheck, Ticket } from "lucide-react";
+import { Headset, PlusCircle, LogOut, User, ShieldCheck, Ticket } from "lucide-react";
 
 interface NavbarProps {
   user: {
@@ -52,10 +52,10 @@ export default function Navbar({ user }: NavbarProps) {
               className="flex items-center space-x-2.5 group transition-transform duration-200 active:scale-95"
             >
               <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-violet-600 flex items-center justify-center text-white shadow-md shadow-indigo-500/20 group-hover:shadow-indigo-500/40 transition-all duration-300">
-                <LifeBuoy className="w-5 h-5 transition-transform group-hover:rotate-45 duration-500" />
+                <Headset className="w-5 h-5" aria-hidden="true" />
               </div>
               <div className="flex flex-col">
-                <span className="text-lg font-black tracking-tight bg-gradient-to-r from-slate-900 via-indigo-950 to-blue-900 bg-clip-text text-transparent">
+                <span className="text-lg font-black tracking-tight text-white">
                   SupportDesk
                 </span>
                 <span className="text-[10px] font-semibold text-slate-400 tracking-widest uppercase -mt-1">
