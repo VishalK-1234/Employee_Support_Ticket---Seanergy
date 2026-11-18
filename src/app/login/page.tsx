@@ -1,11 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { Lock, User, LifeBuoy, ArrowRight, ShieldCheck, Sparkles } from "lucide-react";
 
 export default function LoginPage() {
-  const router = useRouter();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -28,8 +26,12 @@ export default function LoginPage() {
       if (!res.ok) {
         setError(data.error || "Login failed.");
       } else {
-        router.push("/tickets");
-        router.refresh();
+        // Use a full hard navigation after login for the same reason as logout:
+        // router.push() + router.refresh() race against each other and the proxy
+        // middleware can serve a stale RSC cache without the new session cookie.
+        // window.location.href forces a fresh HTTP request so the proxy sees the
+        // new cookie immediately and the layout loads with the correct user.
+        window.location.href = "/tickets";
       }
     } catch {
       setError("An unexpected error occurred. Please try again.");

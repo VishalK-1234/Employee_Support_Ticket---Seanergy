@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { LifeBuoy, PlusCircle, LogOut, User, ShieldCheck, Ticket } from "lucide-react";
 
@@ -14,16 +14,24 @@ interface NavbarProps {
 }
 
 export default function Navbar({ user }: NavbarProps) {
-  const router = useRouter();
   const pathname = usePathname();
   const [loggingOut, setLoggingOut] = useState(false);
 
   async function handleLogout() {
     setLoggingOut(true);
     try {
-      await fetch("/api/auth/logout", { method: "POST" });
-      router.push("/login");
-      router.refresh();
+      const res = await fetch("/api/auth/logout", { method: "POST" });
+      if (!res.ok) {
+        throw new Error(`Logout failed with status ${res.status}`);
+      }
+      // Use a full page navigation instead of router.push() + router.refresh().
+      // router.refresh() is not awaitable — calling router.push() right after
+      // it races against the in-flight RSC refetch and the router can end up in
+      // a conflicting state where the proxy middleware still sees the old cache.
+      // A hard navigation guarantees: (1) the browser sends a fresh HTTP request
+      // with the now-cleared cookie, (2) the proxy middleware runs correctly,
+      // (3) all React state and RSC caches are wiped clean.
+      window.location.href = "/login";
     } catch (err) {
       console.error("Logout failed:", err);
       setLoggingOut(false);
