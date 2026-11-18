@@ -4,6 +4,8 @@ import { getCurrentUser } from "@/lib/auth";
 import { getTicketById } from "@/lib/tickets";
 import StatusSelect from "@/components/StatusSelect";
 import TicketForm from "@/components/TicketForm";
+import CommentList from "@/components/CommentList";
+import CommentForm from "@/components/CommentForm";
 import {
   ArrowLeft,
   Calendar,
@@ -253,6 +255,21 @@ export default async function TicketDetailPage({
       {isSupport && (
         <StatusSelect ticketId={ticket.id} currentStatus={ticket.status} />
       )}
+
+      {/* Discussion Thread */}
+      <section className="glass-panel space-y-5 rounded-3xl border border-white/80 p-6 shadow-xl sm:p-8">
+        <div>
+          <h2 className="text-lg font-black text-slate-900">Comments</h2>
+          <p className="mt-1 text-xs text-slate-500">
+            Chronological discussion for this ticket
+          </p>
+        </div>
+        <CommentList
+          comments={ticket.comments}
+          creatorId={ticket.createdById}
+        />
+        <CommentForm ticketId={ticket.id} isClosed={isClosed} />
+      </section>
 
       {/* Employee Creator Edit Section */}
       {isCreator && (

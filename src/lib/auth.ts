@@ -29,8 +29,13 @@ export async function getCurrentUser(): Promise<AuthenticatedUser | null> {
       username: user.username,
       role: user.role as Role,
     };
-  } catch (error: any) {
-    if (error?.digest === "DYNAMIC_SERVER_USAGE") {
+  } catch (error: unknown) {
+    if (
+      typeof error === "object" &&
+      error !== null &&
+      "digest" in error &&
+      error.digest === "DYNAMIC_SERVER_USAGE"
+    ) {
       throw error;
     }
     return null;

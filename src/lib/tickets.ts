@@ -6,10 +6,22 @@ import {
   validateCategory,
   validatePriority,
   validateStatus,
+  validateComment,
   type Category,
   type Priority,
   type Status,
 } from "@/lib/validate";
+
+export interface TicketComment {
+  id: number;
+  content: string;
+  createdAt: Date;
+  authorId: number;
+  author: {
+    username: string;
+    role: string;
+  };
+}
 
 export interface TicketListItem {
   id: number;
@@ -38,6 +50,7 @@ export interface TicketDetail {
   createdBy: {
     username: string;
   };
+  comments: TicketComment[];
 }
 
 export async function listTickets(
@@ -91,6 +104,17 @@ export async function getTicketById(
       createdBy: {
         select: {
           username: true,
+        },
+      },
+      comments: {
+        orderBy: { createdAt: "asc" },
+        include: {
+          author: {
+            select: {
+              username: true,
+              role: true,
+            },
+          },
         },
       },
     },
@@ -294,4 +318,89 @@ export async function updateTicketStatus(
   });
 
   return { ticket: updated, status: 200 };
+}
+
+async function requireTicketView(
+  id: number,
+  user: AuthenticatedUser
+) {
+  const ticket = await prisma.ticket.findUnique({
+    where: { id },
+  });
+
+  if (!ticket) {
+    return { error: "Ticket not found.", status: 404 as const, ticket: null };
+  }
+
+  if (user.role === "employee" && ticket.createdById !== user.id) {
+    return { error: "Ticket not found.", status: 404 as const, ticket: null };
+  }
+
+  return { ticket, status: 200 as const };
+}
+
+export async function listTicketComments(
+  id: number,
+  user: AuthenticatedUser
+) {
+  const access = await requireTicketView(id, user);
+  if (!access.ticket) {
+    return { error: access.error, status: access.status };
+  }
+
+  const comments = await prisma.comment.findMany({
+    where: { ticketId: id },
+    orderBy: { createdAt: "asc" },
+    include: {
+      author: {
+        select: {
+          username: true,
+          role: true,
+        },
+      },
+    },
+  });
+
+  return { comments, status: 200 };
+}
+
+export async function createTicketComment(
+  id: number,
+  input: { content?: unknown },
+  user: AuthenticatedUser
+) {
+  const access = await requireTicketView(id, user);
+  if (!access.ticket) {
+    return { error: access.error, status: access.status };
+  }
+
+  if (access.ticket.status === "Closed") {
+    return {
+      error: "This ticket is closed. Reopen it to post additional comments.",
+      status: 400,
+    };
+  }
+
+  const contentVal = validateComment(input.content);
+  if (!contentVal.valid) {
+    return { error: contentVal.error, status: 400 };
+  }
+
+  const comment = await prisma.comment.create({
+    data: {
+      content: contentVal.value!,
+      ticketId: id,
+      authorId: user.id,
+    },
+    include: {
+      author: {
+        select: {
+          username: true,
+          role: true,
+        },
+      },
+    },
+  });
+
+  return { comment, status: 201 };
 }

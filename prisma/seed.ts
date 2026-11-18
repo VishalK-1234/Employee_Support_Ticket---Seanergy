@@ -3,6 +3,12 @@ import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
 
+type SeedUser = {
+  id: number;
+  username: string;
+  role: string;
+};
+
 async function main() {
   const defaultPassword = "password123";
   const passwordHash = await bcrypt.hash(defaultPassword, 10);
@@ -14,7 +20,7 @@ async function main() {
     { username: "support1", role: "support" },
   ];
 
-  const createdUsers: Record<string, any> = {};
+  const createdUsers: Record<string, SeedUser> = {};
 
   for (const u of usersData) {
     const existing = await prisma.user.findUnique({

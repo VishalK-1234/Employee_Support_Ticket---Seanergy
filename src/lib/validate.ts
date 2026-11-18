@@ -87,3 +87,23 @@ export function validateStatus(input: unknown): ValidationResult<Status> {
   }
   return { valid: true, value: input as Status };
 }
+
+export function validateComment(input: unknown): ValidationResult<string> {
+  if (typeof input !== "string") {
+    return { valid: false, error: "Comment content is required." };
+  }
+  const trimmed = input.trim();
+  if (trimmed.length < 1) {
+    return {
+      valid: false,
+      error: "Comment content is required and cannot be empty.",
+    };
+  }
+  if (trimmed.length > 1000) {
+    return {
+      valid: false,
+      error: "Comment content must not exceed 1000 characters.",
+    };
+  }
+  return { valid: true, value: trimmed };
+}

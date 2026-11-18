@@ -6,6 +6,8 @@ import {
   createTicket,
   updateTicketFields,
   updateTicketStatus,
+  listTicketComments,
+  createTicketComment,
 } from "../src/lib/tickets";
 import {
   validateTitle,
@@ -13,6 +15,7 @@ import {
   validateCategory,
   validatePriority,
   validateStatus,
+  validateComment,
 } from "../src/lib/validate";
 
 async function runVerification() {
@@ -243,6 +246,73 @@ async function runVerification() {
     userEmp1
   );
   assert(reopenEdit.status === 200, "Creator can edit fields again after ticket is reopened");
+
+  // 7. Comment Validation and Access Control
+  console.log("\n--- 7. Comment Validation & Access Control ---");
+
+  const blankCommentValidation = validateComment("   ");
+  assert(!blankCommentValidation.valid, "Blank comment content is rejected by validation");
+
+  const longCommentValidation = validateComment("x".repeat(1001));
+  assert(!longCommentValidation.valid, "Comment content over 1000 characters is rejected");
+
+  const empComment = await createTicketComment(
+    newTicketId,
+    { content: "  This issue is now reproducible.  " },
+    userEmp1
+  );
+  assert(empComment.status === 201 && !!empComment.comment, "Creator employee can post an open-ticket comment");
+  assert(empComment.comment?.content === "This issue is now reproducible.", "Comment content is trimmed before saving");
+
+  const supportComment = await createTicketComment(
+    newTicketId,
+    { content: "Support is reviewing the reported issue." },
+    userSup1
+  );
+  assert(supportComment.status === 201 && !!supportComment.comment, "Support staff can reply to an open ticket");
+
+  const visibleComments = await listTicketComments(newTicketId, userEmp1);
+  assert(visibleComments.status === 200, "Ticket creator can list comments");
+  const comments = "comments" in visibleComments ? visibleComments.comments : undefined;
+  if (comments) {
+    assert(
+      comments.length >= 2 &&
+        !!comments[0] &&
+        !!comments[1] &&
+        comments[0].createdAt.getTime() <= comments[1].createdAt.getTime(),
+      "Comments are returned in chronological order"
+    );
+    assert(
+      comments.some((comment) => comment.author.role === "support"),
+      "Comment author identities include support staff role"
+    );
+  }
+
+  const unauthorizedComment = await createTicketComment(
+    newTicketId,
+    { content: "Unauthorized comment" },
+    userEmp2
+  );
+  assert(
+    unauthorizedComment.status === 404,
+    "Non-creator employee cannot comment on another employee's ticket"
+  );
+
+  const unauthorizedList = await listTicketComments(newTicketId, userEmp2);
+  assert(
+    unauthorizedList.status === 404,
+    "Non-creator employee cannot list another employee's comments"
+  );
+
+  const closeForComments = await updateTicketStatus(newTicketId, "Closed", userSup1);
+  assert(closeForComments.status === 200, "Support closes ticket before comment lock test");
+
+  const closedComment = await createTicketComment(
+    newTicketId,
+    { content: "Comment after closure" },
+    userEmp1
+  );
+  assert(closedComment.status === 400, "Posting on a Closed ticket is refused with 400");
 
   console.log("\n=================================================");
   console.log(`VERIFICATION SUMMARY: ${passed} PASSED, ${failed} FAILED`);
