@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
+import { LifeBuoy, PlusCircle, LogOut, User, ShieldCheck, Ticket } from "lucide-react";
 
 interface NavbarProps {
   user: {
@@ -14,6 +15,7 @@ interface NavbarProps {
 
 export default function Navbar({ user }: NavbarProps) {
   const router = useRouter();
+  const pathname = usePathname();
   const [loggingOut, setLoggingOut] = useState(false);
 
   async function handleLogout() {
@@ -28,55 +30,102 @@ export default function Navbar({ user }: NavbarProps) {
     }
   }
 
+  const isTicketsActive = pathname === "/tickets" || pathname.startsWith("/tickets/");
+  const isNewActive = pathname === "/tickets/new";
+
   return (
-    <header className="bg-white border-b border-zinc-200">
+    <header className="glass-nav sticky top-0 z-50 transition-all duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16">
+        <div className="flex justify-between h-16 items-center">
+          {/* Logo & Navigation */}
           <div className="flex items-center space-x-8">
-            <Link href={user ? "/tickets" : "/login"} className="text-lg font-bold text-zinc-900 tracking-tight">
-              SupportDesk
+            <Link
+              href={user ? "/tickets" : "/login"}
+              className="flex items-center space-x-2.5 group transition-transform duration-200 active:scale-95"
+            >
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-violet-600 flex items-center justify-center text-white shadow-md shadow-indigo-500/20 group-hover:shadow-indigo-500/40 transition-all duration-300">
+                <LifeBuoy className="w-5 h-5 transition-transform group-hover:rotate-45 duration-500" />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-lg font-black tracking-tight bg-gradient-to-r from-slate-900 via-indigo-950 to-blue-900 bg-clip-text text-transparent">
+                  SupportDesk
+                </span>
+                <span className="text-[10px] font-semibold text-slate-400 tracking-widest uppercase -mt-1">
+                  Enterprise Support
+                </span>
+              </div>
             </Link>
+
             {user && (
-              <nav className="flex space-x-4">
+              <nav className="hidden sm:flex items-center space-x-2">
                 <Link
                   href="/tickets"
-                  className="px-3 py-2 rounded-md text-sm font-medium text-zinc-700 hover:text-zinc-900 hover:bg-zinc-100"
+                  className={`flex items-center space-x-1.5 px-3.5 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 ${
+                    isTicketsActive && !isNewActive
+                      ? "bg-slate-900/5 text-slate-900 font-semibold shadow-inner"
+                      : "text-slate-600 hover:text-slate-900 hover:bg-white/60"
+                  }`}
                 >
-                  Tickets
+                  <Ticket className="w-4 h-4" />
+                  <span>Tickets</span>
                 </Link>
+
                 {user.role === "employee" && (
                   <Link
                     href="/tickets/new"
-                    className="px-3 py-2 rounded-md text-sm font-medium text-blue-600 hover:text-blue-800 hover:bg-blue-50"
+                    className={`flex items-center space-x-1.5 px-3.5 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 ${
+                      isNewActive
+                        ? "bg-blue-600 text-white shadow-md shadow-blue-500/25"
+                        : "text-blue-600 hover:text-blue-700 hover:bg-blue-50/80"
+                    }`}
                   >
-                    + New Ticket
+                    <PlusCircle className="w-4 h-4" />
+                    <span>New Ticket</span>
                   </Link>
                 )}
               </nav>
             )}
           </div>
 
+          {/* User profile & actions */}
           <div className="flex items-center space-x-4">
             {user ? (
-              <div className="flex items-center space-x-4">
-                <div className="text-right">
-                  <div className="text-sm font-semibold text-zinc-900">{user.username}</div>
-                  <div className="text-xs font-medium text-zinc-500 uppercase">
-                    Role: {user.role === "support" ? "Support Staff" : "Employee"}
+              <div className="flex items-center space-x-3">
+                <div className="flex items-center space-x-2.5 px-3 py-1.5 rounded-xl bg-white/60 border border-slate-200/60 shadow-sm backdrop-blur-md">
+                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center text-slate-600 border border-slate-200/50">
+                    {user.role === "support" ? (
+                      <ShieldCheck className="w-4 h-4 text-purple-600" />
+                    ) : (
+                      <User className="w-4 h-4 text-blue-600" />
+                    )}
+                  </div>
+                  <div className="text-left hidden md:block">
+                    <div className="text-xs font-bold text-slate-800 leading-tight">
+                      {user.username}
+                    </div>
+                    <div className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">
+                      {user.role === "support" ? (
+                        <span className="text-purple-600 font-bold">Support Staff</span>
+                      ) : (
+                        <span className="text-blue-600 font-bold">Employee</span>
+                      )}
+                    </div>
                   </div>
                 </div>
+
                 <button
                   onClick={handleLogout}
                   disabled={loggingOut}
-                  className="rounded-md border border-zinc-300 bg-white px-3 py-1.5 text-xs font-medium text-zinc-700 shadow-sm hover:bg-zinc-50 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+                  title="Sign Out"
+                  className="p-2 rounded-xl text-slate-500 hover:text-rose-600 hover:bg-rose-50/80 border border-transparent hover:border-rose-200/60 transition-all duration-200 active:scale-95 disabled:opacity-50"
                 >
-                  {loggingOut ? "Signing out..." : "Sign Out"}
+                  <LogOut className="w-4 h-4" />
                 </button>
               </div>
             ) : (
               <Link
                 href="/login"
-                className="rounded-md bg-blue-600 px-3.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-500"
+                className="px-4 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-sm font-semibold shadow-md shadow-blue-500/20 hover:shadow-blue-500/35 hover:scale-[1.02] active:scale-95 transition-all duration-200"
               >
                 Sign In
               </Link>

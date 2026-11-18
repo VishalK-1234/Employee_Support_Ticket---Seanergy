@@ -178,11 +178,11 @@ async function runVerification() {
   assert(validEdit.ticket?.title === "Updated Headset Title", "Title updated successfully");
   assert(validEdit.ticket?.priority === "High", "Priority updated successfully");
   assert(
-    validEdit.ticket?.createdAt.getTime() === originalCreatedDate.getTime(),
+    validEdit.ticket!.createdAt.getTime() === originalCreatedDate.getTime(),
     "createdAt remains untouched after edit"
   );
   assert(
-    validEdit.ticket?.updatedAt.getTime() > originalUpdatedDate.getTime(),
+    validEdit.ticket!.updatedAt.getTime() > originalUpdatedDate.getTime(),
     "updatedAt refreshed after field edit"
   );
 

@@ -4,32 +4,104 @@ import { getCurrentUser } from "@/lib/auth";
 import { getTicketById } from "@/lib/tickets";
 import StatusSelect from "@/components/StatusSelect";
 import TicketForm from "@/components/TicketForm";
+import {
+  ArrowLeft,
+  Calendar,
+  Clock,
+  User,
+  Monitor,
+  Code,
+  Wifi,
+  Key,
+  HelpCircle,
+  CheckCircle2,
+  AlertCircle,
+  Hourglass,
+  Lock,
+  Tag,
+} from "lucide-react";
+
+function getCategoryIcon(cat: string) {
+  switch (cat) {
+    case "Hardware":
+      return <Monitor className="w-4 h-4 text-blue-500" />;
+    case "Software":
+      return <Code className="w-4 h-4 text-indigo-500" />;
+    case "Network":
+      return <Wifi className="w-4 h-4 text-cyan-500" />;
+    case "Access":
+      return <Key className="w-4 h-4 text-amber-500" />;
+    default:
+      return <HelpCircle className="w-4 h-4 text-slate-500" />;
+  }
+}
 
 function getStatusBadge(status: string) {
   switch (status) {
     case "Open":
-      return "bg-blue-50 text-blue-700 ring-1 ring-blue-700/10";
+      return (
+        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-blue-500/10 text-blue-700 border border-blue-500/25 shadow-sm">
+          <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
+          Open
+        </span>
+      );
     case "In Progress":
-      return "bg-amber-50 text-amber-700 ring-1 ring-amber-700/10";
+      return (
+        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-amber-500/10 text-amber-700 border border-amber-500/25 shadow-sm">
+          <Hourglass className="w-3.5 h-3.5 text-amber-500 animate-spin" style={{ animationDuration: "3s" }} />
+          In Progress
+        </span>
+      );
     case "Resolved":
-      return "bg-green-50 text-green-700 ring-1 ring-green-700/10";
+      return (
+        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-700 border border-emerald-500/25 shadow-sm">
+          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
+          Resolved
+        </span>
+      );
     case "Closed":
-      return "bg-zinc-100 text-zinc-700 ring-1 ring-zinc-700/10";
+      return (
+        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-slate-500/10 text-slate-700 border border-slate-500/25 shadow-sm">
+          <Lock className="w-3.5 h-3.5 text-slate-500" />
+          Closed
+        </span>
+      );
     default:
-      return "bg-zinc-50 text-zinc-600";
+      return (
+        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700">
+          {status}
+        </span>
+      );
   }
 }
 
 function getPriorityBadge(priority: string) {
   switch (priority) {
     case "High":
-      return "text-red-700 bg-red-50 ring-1 ring-red-700/10";
+      return (
+        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-rose-500/10 text-rose-700 border border-rose-500/25">
+          <AlertCircle className="w-3.5 h-3.5 text-rose-500" />
+          High Priority
+        </span>
+      );
     case "Medium":
-      return "text-orange-700 bg-orange-50 ring-1 ring-orange-700/10";
+      return (
+        <span className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold bg-orange-500/10 text-orange-700 border border-orange-500/25">
+          Medium Priority
+        </span>
+      );
     case "Low":
-      return "text-zinc-600 bg-zinc-50 ring-1 ring-zinc-600/10";
+      return (
+        <span className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold bg-slate-500/10 text-slate-600 border border-slate-500/25">
+          Low Priority
+        </span>
+      );
     default:
-      return "text-zinc-600 bg-zinc-50";
+      return (
+        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-600">
+          {priority} Priority
+        </span>
+      );
   }
 }
 
@@ -51,22 +123,29 @@ export default async function TicketDetailPage({
 
   const ticket = await getTicketById(id, user);
 
-  // AC-05: If ticket does not exist or this employee is not allowed to see it,
-  // show clean not-found without any ticket details.
+  // AC-05: Unauthorized access to other employee's tickets returns 404 with no ticket body
   if (!ticket) {
     return (
-      <div className="max-w-3xl mx-auto py-12 text-center">
-        <div className="bg-white p-8 rounded-lg border border-zinc-200 shadow-sm">
-          <h2 className="text-xl font-bold text-zinc-900 mb-2">Ticket Not Found</h2>
-          <p className="text-sm text-zinc-500 mb-6">
-            The requested ticket does not exist or you do not have permission to view it.
+      <div className="max-w-2xl mx-auto py-16 text-center">
+        <div className="glass-panel rounded-3xl p-10 border border-white/80 shadow-xl space-y-4">
+          <div className="w-14 h-14 rounded-2xl bg-slate-100 flex items-center justify-center text-slate-400 mx-auto">
+            <Lock className="w-7 h-7" />
+          </div>
+          <h2 className="text-2xl font-black text-slate-900 tracking-tight">
+            Ticket Not Found
+          </h2>
+          <p className="text-sm text-slate-500 max-w-sm mx-auto">
+            The requested ticket does not exist, or you do not have permission to view it.
           </p>
-          <Link
-            href="/tickets"
-            className="inline-flex items-center rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500"
-          >
-            Back to Ticket List
-          </Link>
+          <div className="pt-2">
+            <Link
+              href="/tickets"
+              className="inline-flex items-center space-x-2 rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-bold text-white shadow-md shadow-blue-500/25 hover:bg-blue-500 transition-all duration-200"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span>Return to Ticket List</span>
+            </Link>
+          </div>
         </div>
       </div>
     );
@@ -78,73 +157,99 @@ export default async function TicketDetailPage({
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      <div className="flex items-center justify-between">
+      {/* Back button and badges */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <Link
           href="/tickets"
-          className="text-sm font-medium text-blue-600 hover:text-blue-800"
+          className="inline-flex items-center space-x-2 text-sm font-bold text-slate-600 hover:text-blue-600 transition-colors duration-150 group"
         >
-          &larr; Back to Ticket List
+          <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
+          <span>Back to Tickets</span>
         </Link>
+
         <div className="flex items-center gap-2">
-          <span
-            className={`inline-flex items-center rounded-md px-2.5 py-1 text-xs font-semibold ${getStatusBadge(
-              ticket.status
-            )}`}
-          >
-            {ticket.status}
-          </span>
-          <span
-            className={`inline-flex items-center rounded-md px-2.5 py-1 text-xs font-semibold ${getPriorityBadge(
-              ticket.priority
-            )}`}
-          >
-            {ticket.priority} Priority
-          </span>
+          {getStatusBadge(ticket.status)}
+          {getPriorityBadge(ticket.priority)}
         </div>
       </div>
 
-      {/* Ticket Overview Card */}
-      <div className="bg-white rounded-lg border border-zinc-200 shadow-sm p-6 space-y-4">
-        <div className="border-b border-zinc-100 pb-4">
-          <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-2">
-            <h1 className="text-2xl font-bold text-zinc-900 tracking-tight">
-              {ticket.title}
-            </h1>
-            <span className="text-sm font-mono text-zinc-400">
-              Ticket #{ticket.id}
-            </span>
+      {/* Main Ticket Overview Glass Card */}
+      <div className="glass-panel rounded-3xl p-8 sm:p-10 shadow-xl border border-white/80 space-y-6">
+        <div>
+          <div className="flex items-center gap-2 text-xs font-mono font-bold text-slate-400 uppercase tracking-wider mb-2">
+            <Tag className="w-3.5 h-3.5 text-blue-500" />
+            <span>Ticket #{ticket.id}</span>
           </div>
-          <div className="mt-2 flex flex-wrap items-center gap-x-6 gap-y-2 text-xs text-zinc-500">
-            <div>
-              <span className="font-medium text-zinc-700">Created by:</span>{" "}
+          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight leading-snug">
+            {ticket.title}
+          </h1>
+        </div>
+
+        {/* Metadata Pill Strip */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2 pb-2">
+          <div className="p-3 rounded-2xl bg-white/60 border border-slate-200/60 shadow-xs">
+            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1 flex items-center gap-1">
+              <User className="w-3 h-3 text-slate-400" />
+              Creator
+            </div>
+            <div className="text-xs font-bold text-slate-800 truncate">
               {ticket.createdBy?.username || `User #${ticket.createdById}`}
             </div>
-            <div>
-              <span className="font-medium text-zinc-700">Category:</span>{" "}
+          </div>
+
+          <div className="p-3 rounded-2xl bg-white/60 border border-slate-200/60 shadow-xs">
+            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1 flex items-center gap-1">
+              {getCategoryIcon(ticket.category)}
+              Category
+            </div>
+            <div className="text-xs font-bold text-slate-800">
               {ticket.category}
             </div>
-            <div>
-              <span className="font-medium text-zinc-700">Created:</span>{" "}
-              {new Date(ticket.createdAt).toLocaleString()}
+          </div>
+
+          <div className="p-3 rounded-2xl bg-white/60 border border-slate-200/60 shadow-xs">
+            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1 flex items-center gap-1">
+              <Calendar className="w-3 h-3 text-slate-400" />
+              Created
             </div>
-            <div>
-              <span className="font-medium text-zinc-700">Last updated:</span>{" "}
-              {new Date(ticket.updatedAt).toLocaleString()}
+            <div className="text-xs font-bold text-slate-800">
+              {new Date(ticket.createdAt).toLocaleDateString(undefined, {
+                month: "short",
+                day: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+              })}
+            </div>
+          </div>
+
+          <div className="p-3 rounded-2xl bg-white/60 border border-slate-200/60 shadow-xs">
+            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1 flex items-center gap-1">
+              <Clock className="w-3 h-3 text-slate-400" />
+              Last Updated
+            </div>
+            <div className="text-xs font-bold text-slate-800">
+              {new Date(ticket.updatedAt).toLocaleDateString(undefined, {
+                month: "short",
+                day: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+              })}
             </div>
           </div>
         </div>
 
-        <div>
-          <h3 className="text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-1">
+        {/* Description Section */}
+        <div className="pt-4 border-t border-slate-200/60">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">
             Description
           </h3>
-          <p className="text-sm text-zinc-800 whitespace-pre-wrap leading-relaxed">
+          <div className="p-5 rounded-2xl bg-white/70 border border-slate-200/70 text-slate-800 text-sm whitespace-pre-wrap leading-relaxed shadow-xs">
             {ticket.description}
-          </p>
+          </div>
         </div>
       </div>
 
-      {/* Support Status Control */}
+      {/* Support Status Lifecycle Control */}
       {isSupport && (
         <StatusSelect ticketId={ticket.id} currentStatus={ticket.status} />
       )}
@@ -153,13 +258,20 @@ export default async function TicketDetailPage({
       {isCreator && (
         <div>
           {isClosed ? (
-            <div className="bg-zinc-50 border border-zinc-200 rounded-lg p-6">
-              <h3 className="text-sm font-semibold text-zinc-800 uppercase tracking-wider mb-1">
-                Ticket Closed
-              </h3>
-              <p className="text-sm text-zinc-600">
-                This ticket is currently Closed. Title, description, category, and priority cannot be modified. If support re-opens the ticket, field editing will be re-enabled.
-              </p>
+            <div className="glass-panel rounded-3xl p-8 border border-slate-200/60 bg-slate-50/50 backdrop-blur-md">
+              <div className="flex items-start gap-4">
+                <div className="w-10 h-10 rounded-2xl bg-slate-200/60 flex items-center justify-center text-slate-500 shrink-0">
+                  <Lock className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-slate-800">
+                    Editing Locked (Ticket Closed)
+                  </h3>
+                  <p className="text-sm text-slate-500 mt-1">
+                    This ticket is currently Closed. Title, description, category, and priority cannot be modified. If support staff re-opens the ticket, editing will be automatically re-enabled.
+                  </p>
+                </div>
+              </div>
             </div>
           ) : (
             <TicketForm

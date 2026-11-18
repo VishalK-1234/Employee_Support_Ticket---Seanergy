@@ -6,8 +6,8 @@ import { getCurrentUser } from "@/lib/auth";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Employee Support Ticket App",
-  description: "Support ticket management for employees and support staff",
+  title: "SupportDesk | IT Support Portal",
+  description: "Enterprise IT support ticket management with real-time tracking",
 };
 
 export default async function RootLayout({
@@ -18,10 +18,18 @@ export default async function RootLayout({
   const user = await getCurrentUser();
 
   return (
-    <html lang="en" className="h-full antialiased">
-      <body className="min-h-full flex flex-col bg-zinc-50 text-zinc-900 font-sans">
+    <html lang="en" className="h-full antialiased selection:bg-blue-500 selection:text-white">
+      <body className="min-h-full flex flex-col font-sans text-slate-800">
+        {/* Ambient floating mesh gradients for glassmorphism refraction */}
+        <div className="ambient-mesh">
+          <div className="ambient-blob-1" />
+          <div className="ambient-blob-2" />
+          <div className="ambient-blob-3" />
+        </div>
+
         <Navbar user={user} />
-        <main className="flex-1 max-w-7xl w-full mx-auto px-4 py-8 sm:px-6 lg:px-8">
+
+        <main className="flex-1 max-w-7xl w-full mx-auto px-4 py-8 sm:px-6 lg:px-8 animate-fade-in">
           {children}
         </main>
       </body>

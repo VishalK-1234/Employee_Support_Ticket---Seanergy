@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { Lock, User, LifeBuoy, ArrowRight, ShieldCheck, Sparkles } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -44,99 +45,141 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-[70vh] items-center justify-center">
-      <div className="w-full max-w-md bg-white p-8 rounded-xl border border-zinc-200 shadow-sm">
-        <div className="text-center mb-6">
-          <h1 className="text-2xl font-bold tracking-tight text-zinc-900">
-            Sign In to SupportDesk
+    <div className="flex min-h-[75vh] items-center justify-center py-6 px-4">
+      <div className="w-full max-w-md glass-panel rounded-3xl p-8 sm:p-10 shadow-2xl border border-white/60 relative overflow-hidden transition-all duration-300">
+        {/* Subtle decorative glow in the card */}
+        <div className="absolute -top-24 -right-24 w-48 h-48 bg-gradient-to-br from-blue-400/20 to-purple-400/20 rounded-full blur-2xl pointer-events-none" />
+
+        <div className="text-center mb-8 relative">
+          <div className="inline-flex w-14 h-14 rounded-2xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-violet-600 items-center justify-center text-white shadow-lg shadow-indigo-500/25 mb-4 transform hover:scale-105 transition-transform duration-300">
+            <LifeBuoy className="w-7 h-7" />
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">
+            Welcome Back
           </h1>
-          <p className="text-sm text-zinc-500 mt-1">
-            Enter your credentials to access tickets
+          <p className="text-xs sm:text-sm text-slate-500 mt-1 font-medium">
+            Sign in to access your IT support tickets
           </p>
         </div>
 
         {error && (
-          <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 text-sm rounded-md">
-            {error}
+          <div className="mb-6 p-3.5 bg-rose-50/90 border border-rose-200/80 text-rose-700 text-xs sm:text-sm rounded-xl flex items-center gap-2 backdrop-blur-md animate-fade-in shadow-sm">
+            <span className="w-1.5 h-1.5 rounded-full bg-rose-600 shrink-0" />
+            <p className="font-medium">{error}</p>
           </div>
         )}
 
-        <form onSubmit={handleLogin} className="space-y-4">
+        <form onSubmit={handleLogin} className="space-y-4 relative">
           <div>
             <label
               htmlFor="username"
-              className="block text-sm font-medium text-zinc-700 mb-1"
+              className="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5"
             >
               Username
             </label>
-            <input
-              id="username"
-              type="text"
-              required
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              placeholder="e.g. employee1 or support1"
-              className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm text-zinc-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-            />
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                <User className="w-4 h-4" />
+              </div>
+              <input
+                id="username"
+                type="text"
+                required
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="employee1 or support1"
+                className="w-full glass-input rounded-xl pl-10 pr-4 py-2.5 text-sm text-slate-900 font-medium placeholder:text-slate-400 shadow-sm transition-all duration-200"
+              />
+            </div>
           </div>
 
           <div>
             <label
               htmlFor="password"
-              className="block text-sm font-medium text-zinc-700 mb-1"
+              className="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5"
             >
               Password
             </label>
-            <input
-              id="password"
-              type="password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm text-zinc-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-            />
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                <Lock className="w-4 h-4" />
+              </div>
+              <input
+                id="password"
+                type="password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                className="w-full glass-input rounded-xl pl-10 pr-4 py-2.5 text-sm text-slate-900 font-medium placeholder:text-slate-400 shadow-sm transition-all duration-200"
+              />
+            </div>
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full rounded-md bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-600 disabled:opacity-50"
+            className="w-full group mt-2 flex items-center justify-center space-x-2 rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 px-4 py-3 text-sm font-bold text-white shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 hover:scale-[1.01] active:scale-[0.98] transition-all duration-200 disabled:opacity-50"
           >
-            {loading ? "Signing in..." : "Sign In"}
+            <span>{loading ? "Authenticating..." : "Sign In to Portal"}</span>
+            {!loading && (
+              <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+            )}
           </button>
         </form>
 
-        <div className="mt-6 pt-6 border-t border-zinc-100">
-          <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-2">
-            Demo Training Accounts
-          </p>
+        {/* Demo Accounts Quick-Select */}
+        <div className="mt-8 pt-6 border-t border-slate-200/60">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+              Quick Demo Login
+            </span>
+            <span className="text-[11px] text-slate-400 font-mono">
+              pass: password123
+            </span>
+          </div>
+
           <div className="grid grid-cols-3 gap-2">
             <button
               type="button"
               onClick={() => fillCredentials("employee1", "password123")}
-              className="p-2 text-xs border rounded text-zinc-700 hover:bg-zinc-50 text-center font-medium"
+              className={`p-2.5 rounded-xl border text-xs font-semibold transition-all duration-200 flex flex-col items-center gap-1 ${
+                username === "employee1"
+                  ? "bg-blue-50/90 border-blue-400 text-blue-700 shadow-sm shadow-blue-500/10"
+                  : "bg-white/50 border-slate-200/80 text-slate-700 hover:bg-white hover:border-slate-300"
+              }`}
             >
-              employee1
+              <User className="w-3.5 h-3.5 text-blue-500" />
+              <span>employee1</span>
             </button>
+
             <button
               type="button"
               onClick={() => fillCredentials("employee2", "password123")}
-              className="p-2 text-xs border rounded text-zinc-700 hover:bg-zinc-50 text-center font-medium"
+              className={`p-2.5 rounded-xl border text-xs font-semibold transition-all duration-200 flex flex-col items-center gap-1 ${
+                username === "employee2"
+                  ? "bg-blue-50/90 border-blue-400 text-blue-700 shadow-sm shadow-blue-500/10"
+                  : "bg-white/50 border-slate-200/80 text-slate-700 hover:bg-white hover:border-slate-300"
+              }`}
             >
-              employee2
+              <User className="w-3.5 h-3.5 text-blue-500" />
+              <span>employee2</span>
             </button>
+
             <button
               type="button"
               onClick={() => fillCredentials("support1", "password123")}
-              className="p-2 text-xs border rounded text-zinc-700 hover:bg-zinc-50 text-center font-medium"
+              className={`p-2.5 rounded-xl border text-xs font-semibold transition-all duration-200 flex flex-col items-center gap-1 ${
+                username === "support1"
+                  ? "bg-purple-50/90 border-purple-400 text-purple-700 shadow-sm shadow-purple-500/10"
+                  : "bg-white/50 border-slate-200/80 text-slate-700 hover:bg-white hover:border-slate-300"
+              }`}
             >
-              support1
+              <ShieldCheck className="w-3.5 h-3.5 text-purple-500" />
+              <span>support1</span>
             </button>
           </div>
-          <p className="text-xs text-zinc-400 mt-2 text-center">
-            Password for all accounts: <code className="bg-zinc-100 px-1 py-0.5 rounded">password123</code>
-          </p>
         </div>
       </div>
     </div>

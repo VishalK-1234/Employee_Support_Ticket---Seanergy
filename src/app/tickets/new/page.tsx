@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
 import TicketForm from "@/components/TicketForm";
+import { ArrowLeft } from "lucide-react";
 
 export default async function NewTicketPage() {
   const user = await getCurrentUser();
@@ -15,13 +16,14 @@ export default async function NewTicketPage() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="max-w-3xl mx-auto space-y-6">
+      <div>
         <Link
           href="/tickets"
-          className="text-sm font-medium text-blue-600 hover:text-blue-800"
+          className="inline-flex items-center space-x-2 text-sm font-bold text-slate-600 hover:text-blue-600 transition-colors duration-150 group"
         >
-          &larr; Back to Tickets
+          <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
+          <span>Back to Ticket List</span>
         </Link>
       </div>
 

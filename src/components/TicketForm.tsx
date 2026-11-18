@@ -3,6 +3,18 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { CATEGORIES, PRIORITIES, type Category, type Priority } from "@/lib/validate";
+import {
+  AlertCircle,
+  CheckCircle2,
+  Lock,
+  Send,
+  Save,
+  Monitor,
+  Code,
+  Wifi,
+  Key,
+  HelpCircle,
+} from "lucide-react";
 
 interface TicketFormProps {
   initialData?: {
@@ -14,6 +26,21 @@ interface TicketFormProps {
     status: string;
   };
   isEdit?: boolean;
+}
+
+function getCategoryIcon(cat: string) {
+  switch (cat) {
+    case "Hardware":
+      return <Monitor className="w-4 h-4" />;
+    case "Software":
+      return <Code className="w-4 h-4" />;
+    case "Network":
+      return <Wifi className="w-4 h-4" />;
+    case "Access":
+      return <Key className="w-4 h-4" />;
+    default:
+      return <HelpCircle className="w-4 h-4" />;
+  }
 }
 
 export default function TicketForm({ initialData, isEdit = false }: TicketFormProps) {
@@ -96,36 +123,74 @@ export default function TicketForm({ initialData, isEdit = false }: TicketFormPr
 
   if (isEdit && isClosed) {
     return (
-      <div className="bg-zinc-50 border border-zinc-200 rounded-lg p-6 text-zinc-600">
-        <p className="font-medium text-zinc-800">This ticket is Closed.</p>
-        <p className="text-sm mt-1">Field editing is disabled while the ticket is closed.</p>
+      <div className="glass-panel rounded-3xl p-8 border border-slate-200/60 bg-slate-50/50 backdrop-blur-md">
+        <div className="flex items-start gap-4">
+          <div className="w-10 h-10 rounded-2xl bg-slate-200/60 flex items-center justify-center text-slate-500 shrink-0">
+            <Lock className="w-5 h-5" />
+          </div>
+          <div>
+            <h3 className="text-base font-bold text-slate-800">
+              Editing Locked (Ticket Closed)
+            </h3>
+            <p className="text-sm text-slate-500 mt-1">
+              This ticket is officially marked as Closed. Field modifications are disabled unless support staff re-opens it.
+            </p>
+          </div>
+        </div>
       </div>
     );
   }
 
+  const charCount = title.trim().length;
+
   return (
-    <form onSubmit={handleSubmit} className="bg-white border border-zinc-200 rounded-lg p-6 shadow-sm">
-      <h2 className="text-lg font-semibold text-zinc-900 mb-4">
-        {isEdit ? "Edit Ticket Details" : "Create New Support Ticket"}
-      </h2>
+    <form
+      onSubmit={handleSubmit}
+      className="glass-panel rounded-3xl p-8 sm:p-10 shadow-xl border border-white/80 space-y-6"
+    >
+      <div className="border-b border-slate-200/60 pb-5">
+        <h2 className="text-2xl font-black text-slate-900 tracking-tight">
+          {isEdit ? "Update Ticket Details" : "Create New IT Ticket"}
+        </h2>
+        <p className="text-xs sm:text-sm text-slate-500 mt-1">
+          {isEdit
+            ? "Modify the title, description, category, or priority of your ticket."
+            : "Describe the technical issue you are experiencing so our support team can resolve it."}
+        </p>
+      </div>
 
       {error && (
-        <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 text-sm rounded">
-          {error}
+        <div className="p-4 bg-rose-50/90 border border-rose-200/80 text-rose-700 text-sm rounded-2xl flex items-center gap-2.5 backdrop-blur-md animate-fade-in">
+          <AlertCircle className="w-5 h-5 shrink-0 text-rose-500" />
+          <p className="font-semibold">{error}</p>
         </div>
       )}
 
       {success && (
-        <div className="mb-4 p-3 bg-green-50 border border-green-200 text-green-700 text-sm rounded">
-          {success}
+        <div className="p-4 bg-emerald-50/90 border border-emerald-200/80 text-emerald-700 text-sm rounded-2xl flex items-center gap-2.5 backdrop-blur-md animate-fade-in">
+          <CheckCircle2 className="w-5 h-5 shrink-0 text-emerald-500" />
+          <p className="font-semibold">{success}</p>
         </div>
       )}
 
-      <div className="space-y-4">
+      <div className="space-y-6">
+        {/* Title */}
         <div>
-          <label htmlFor="ticket-title" className="block text-sm font-medium text-zinc-700 mb-1">
-            Title <span className="text-red-500">*</span>
-          </label>
+          <div className="flex items-center justify-between mb-2">
+            <label
+              htmlFor="ticket-title"
+              className="text-xs font-bold uppercase tracking-wider text-slate-700"
+            >
+              Issue Title <span className="text-rose-500">*</span>
+            </label>
+            <span
+              className={`text-xs font-mono font-medium ${
+                charCount > 90 ? "text-amber-600 font-bold" : "text-slate-400"
+              }`}
+            >
+              {charCount} / 100
+            </span>
+          </div>
           <input
             id="ticket-title"
             type="text"
@@ -133,83 +198,114 @@ export default function TicketForm({ initialData, isEdit = false }: TicketFormPr
             onChange={(e) => setTitle(e.target.value)}
             maxLength={100}
             required
-            placeholder="Brief summary of the issue (1-100 characters)"
-            className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm text-zinc-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            placeholder="e.g. Laptop display flickering after sleep"
+            className="w-full glass-input rounded-2xl px-4 py-3 text-sm font-medium text-slate-900 placeholder:text-slate-400 shadow-sm"
           />
-          <p className="text-xs text-zinc-500 mt-1">{title.trim().length}/100 characters</p>
         </div>
 
+        {/* Category Selector Chips */}
         <div>
-          <label htmlFor="ticket-description" className="block text-sm font-medium text-zinc-700 mb-1">
-            Description <span className="text-red-500">*</span>
+          <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">
+            Category <span className="text-rose-500">*</span>
+          </label>
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5">
+            {CATEGORIES.map((c) => {
+              const selected = category === c;
+              return (
+                <button
+                  key={c}
+                  type="button"
+                  onClick={() => setCategory(c)}
+                  className={`p-3 rounded-2xl border text-xs font-bold transition-all duration-200 flex flex-col items-center gap-1.5 ${
+                    selected
+                      ? "bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-500/25 scale-[1.02]"
+                      : "bg-white/60 text-slate-700 border-slate-200/80 hover:bg-white hover:border-slate-300"
+                  }`}
+                >
+                  <span className={selected ? "text-white" : "text-slate-500"}>
+                    {getCategoryIcon(c)}
+                  </span>
+                  <span>{c}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Priority Selector Cards */}
+        <div>
+          <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">
+            Priority Level <span className="text-rose-500">*</span>
+          </label>
+          <div className="grid grid-cols-3 gap-3">
+            {PRIORITIES.map((p) => {
+              const selected = priority === p;
+              let activeClasses = "";
+              if (selected) {
+                if (p === "High") activeClasses = "bg-rose-50 border-rose-500 text-rose-700 ring-2 ring-rose-500/20";
+                else if (p === "Medium") activeClasses = "bg-amber-50 border-amber-500 text-amber-700 ring-2 ring-amber-500/20";
+                else activeClasses = "bg-slate-100 border-slate-600 text-slate-800 ring-2 ring-slate-500/20";
+              } else {
+                activeClasses = "bg-white/60 border-slate-200 text-slate-600 hover:bg-white";
+              }
+
+              return (
+                <button
+                  key={p}
+                  type="button"
+                  onClick={() => setPriority(p)}
+                  className={`p-3 rounded-2xl border text-xs font-bold transition-all duration-200 flex items-center justify-center gap-2 ${activeClasses}`}
+                >
+                  <span
+                    className={`w-2 h-2 rounded-full ${
+                      p === "High" ? "bg-rose-500" : p === "Medium" ? "bg-amber-500" : "bg-slate-400"
+                    }`}
+                  />
+                  <span>{p} Priority</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Description */}
+        <div>
+          <label
+            htmlFor="ticket-description"
+            className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2"
+          >
+            Detailed Description <span className="text-rose-500">*</span>
           </label>
           <textarea
             id="ticket-description"
-            rows={4}
+            rows={5}
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             required
-            placeholder="Detailed description of the issue"
-            className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm text-zinc-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            placeholder="Provide context, error codes, steps to reproduce, or hardware details..."
+            className="w-full glass-input rounded-2xl p-4 text-sm font-medium text-slate-900 placeholder:text-slate-400 shadow-sm"
           />
         </div>
 
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <div>
-            <label htmlFor="ticket-category" className="block text-sm font-medium text-zinc-700 mb-1">
-              Category <span className="text-red-500">*</span>
-            </label>
-            <select
-              id="ticket-category"
-              value={category}
-              onChange={(e) => setCategory(e.target.value as Category)}
-              className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-            >
-              {CATEGORIES.map((c) => (
-                <option key={c} value={c}>
-                  {c}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label htmlFor="ticket-priority" className="block text-sm font-medium text-zinc-700 mb-1">
-              Priority <span className="text-red-500">*</span>
-            </label>
-            <select
-              id="ticket-priority"
-              value={priority}
-              onChange={(e) => setPriority(e.target.value as Priority)}
-              className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-            >
-              {PRIORITIES.map((p) => (
-                <option key={p} value={p}>
-                  {p}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-
-        <div className="pt-2 flex items-center justify-end gap-3">
-          {isEdit ? (
-            <button
-              type="submit"
-              disabled={loading}
-              className="rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-600 disabled:opacity-50"
-            >
-              {loading ? "Saving Changes..." : "Save Changes"}
-            </button>
-          ) : (
-            <button
-              type="submit"
-              disabled={loading}
-              className="rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-600 disabled:opacity-50"
-            >
-              {loading ? "Submitting..." : "Submit Ticket"}
-            </button>
-          )}
+        {/* Actions */}
+        <div className="pt-4 border-t border-slate-200/60 flex items-center justify-end gap-3">
+          <button
+            type="submit"
+            disabled={loading}
+            className="group flex items-center space-x-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 hover:scale-[1.02] active:scale-95 transition-all duration-200 disabled:opacity-50"
+          >
+            {isEdit ? (
+              <>
+                <Save className="w-4 h-4" />
+                <span>{loading ? "Saving Changes..." : "Save Changes"}</span>
+              </>
+            ) : (
+              <>
+                <Send className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+                <span>{loading ? "Submitting Ticket..." : "Submit Support Ticket"}</span>
+              </>
+            )}
+          </button>
         </div>
       </div>
     </form>
